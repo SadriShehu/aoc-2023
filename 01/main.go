@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 var (
@@ -25,8 +27,13 @@ var (
 )
 
 func main() {
+	start := time.Now()
 	day01a()
+	fmt.Println("Time:", time.Since(start))
+
+	startb := time.Now()
 	day01b()
+	fmt.Println("Time:", time.Since(startb))
 }
 
 func day01a() {
@@ -52,29 +59,38 @@ func day01a() {
 func day01b() {
 	data := readFile()
 
+	lock := sync.Mutex{}
 	coordinates := []int{}
+	wg := sync.WaitGroup{}
 	for _, line := range data {
-		num := []int{}
+		wg.Add(1)
+		go func(line string) {
+			defer wg.Done()
+			num := []int{}
 
-		current := ""
-		for _, char := range line {
-			current = current + string(char)
-			for _, digit := range digits {
-				if strings.Contains(current, digit) {
-					num = append(num, digitsMap[digit])
-					current = string(char)
+			current := ""
+			for _, char := range line {
+				current = current + string(char)
+				for _, digit := range digits {
+					if strings.Contains(current, digit) {
+						num = append(num, digitsMap[digit])
+						current = string(char)
+					}
 				}
+
+				number, err := strconv.Atoi(string(char))
+				if err != nil {
+					continue
+				}
+				num = append(num, number)
 			}
 
-			number, err := strconv.Atoi(string(char))
-			if err != nil {
-				continue
-			}
-			num = append(num, number)
-		}
-
-		coordinates = append(coordinates, buildCoordinates(num))
+			lock.Lock()
+			coordinates = append(coordinates, buildCoordinates(num))
+			lock.Unlock()
+		}(line)
 	}
+	wg.Wait()
 
 	fmt.Println("Total:", calculateTotal(coordinates))
 }
