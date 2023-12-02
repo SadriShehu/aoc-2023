@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+type Color struct {
+	maxAllowed int
+	cubePowers int
+}
+
 func main() {
 	start := time.Now()
 	day02()
@@ -18,9 +23,12 @@ func main() {
 func day02() {
 	input := readFile()
 
-	redMax := 12
-	greenMax := 13
-	blueMax := 14
+	colors := map[string]*Color{
+		"red":   {12, 0},
+		"green": {13, 0},
+		"blue":  {14, 0},
+	}
+
 	total := 0
 	powersTotal := 0
 
@@ -37,18 +45,30 @@ func day02() {
 			cubes = append(cubes, pares...)
 		}
 
+		// reset cube powers for each game
+		colors["blue"].cubePowers = 0
+		colors["green"].cubePowers = 0
+		colors["red"].cubePowers = 0
 		skip := false
-		red, green, blue := 0, 0, 0
 		for _, c := range cubes {
 			cube := strings.Split(c, " ")
 
-			skip, red = checkCubes(cube[1], "red", cube[0], redMax, red, skip)
-			skip, green = checkCubes(cube[1], "green", cube[0], greenMax, green, skip)
-			skip, blue = checkCubes(cube[1], "blue", cube[0], blueMax, blue, skip)
+			if color, ok := colors[cube[1]]; ok {
+				cubeInt, _ := strconv.Atoi(cube[0])
+				if cubeInt > color.maxAllowed {
+					skip = true
+				}
+
+				if color.cubePowers < cubeInt {
+					color.cubePowers = cubeInt
+				}
+			}
 		}
 
 		// day02b
-		powersTotal += red * green * blue
+		powersTotal += colors["red"].cubePowers *
+			colors["green"].cubePowers *
+			colors["blue"].cubePowers
 
 		// day02a
 		if !skip {
@@ -66,19 +86,4 @@ func readFile() []string {
 	}
 
 	return strings.Split(string(input), "\n")
-}
-
-func checkCubes(color, expectedColor, cubeNumber string, maxColor, max int, skip bool) (bool, int) {
-	if color == expectedColor {
-		cubeInt, _ := strconv.Atoi(cubeNumber)
-		if cubeInt > maxColor {
-			skip = true
-		}
-
-		if max < cubeInt {
-			max = cubeInt
-		}
-	}
-
-	return skip, max
 }
