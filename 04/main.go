@@ -15,12 +15,22 @@ func main() {
 }
 
 func day04() {
-	total := 0
-
 	input := readFile()
-	for _, line := range input {
+
+	totalLines := len(input)
+	// create all the cards with 1 copy
+	cardCopies := make([]int, totalLines)
+	for i := range cardCopies {
+		cardCopies[i] = 1
+	}
+
+	// total of winning numbers
+	total := 0
+	for i, line := range input {
 		cardTotal := 0
-		numbers := strings.Split(line, " | ")
+		winningCount := 0
+		splitPrefix := strings.Split(line, ": ")
+		numbers := strings.Split(splitPrefix[1], " | ")
 		winning := numbers[0]
 		selected := numbers[1]
 
@@ -33,6 +43,7 @@ func day04() {
 
 		for _, w := range strings.Split(winning, " ") {
 			if _, ok := selectedMap[w]; ok {
+				winningCount++
 				if cardTotal == 0 {
 					cardTotal = 1
 					continue
@@ -43,9 +54,24 @@ func day04() {
 		}
 
 		total += cardTotal
+
+		// add the winning count to the next cards as new copies
+		for j := i + 1; j <= i+winningCount; j++ {
+			cardCopies[j] += cardCopies[i]
+		}
 	}
 
-	fmt.Println(total)
+	totalCards := 0
+	// sum all the cards
+	for _, a := range cardCopies {
+		totalCards += a
+	}
+
+	// part one
+	fmt.Println("Sum of winning numbers", total)
+
+	// part two
+	fmt.Println("Total Cards: ", totalCards)
 }
 
 func readFile() []string {
