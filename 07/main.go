@@ -129,23 +129,7 @@ func calculateRank() {
 	rank := 1
 	score := 0
 	for i := 0; i < len(cardSets); i++ {
-		for j := 0; j < len(cardSets[i]); j++ {
-			for k := j + 1; k < len(cardSets[i]); k++ {
-				shouldSwap := false
-				for l := 0; l < len(cardSets[i][j]); l++ {
-					if cardPower[rune(cardSets[i][j][l])] > cardPower[rune(cardSets[i][k][l])] {
-						shouldSwap = true
-						break
-					} else if cardPower[rune(cardSets[i][j][l])] < cardPower[rune(cardSets[i][k][l])] {
-						break
-					}
-				}
-				if shouldSwap {
-					cardSets[i][j], cardSets[i][k] = cardSets[i][k], cardSets[i][j]
-				}
-			}
-		}
-
+		bubbleSortAlg(cardSets[i])
 		for _, hand := range cardSets[i] {
 			score += cardHands[i+1][hand] * rank
 			rank++
@@ -153,6 +137,25 @@ func calculateRank() {
 	}
 
 	fmt.Println(score)
+}
+
+func bubbleSortAlg(arr []string) {
+	for j := 0; j < len(arr); j++ {
+		for k := j + 1; k < len(arr); k++ {
+			shouldSwap := false
+			for l := 0; l < len(arr[j]); l++ {
+				if cardPower[rune(arr[j][l])] > cardPower[rune(arr[k][l])] {
+					shouldSwap = true
+					break
+				} else if cardPower[rune(arr[j][l])] < cardPower[rune(arr[k][l])] {
+					break
+				}
+			}
+			if shouldSwap {
+				arr[j], arr[k] = arr[k], arr[j]
+			}
+		}
+	}
 }
 
 func readFile() []string {
