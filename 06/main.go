@@ -20,8 +20,8 @@ func day6a() {
 	input := readFile()
 
 	// Part 1
-	times := []int{}
-	lengths := []int{}
+	var times []int
+	var lengths []int
 
 	// Part 2
 	singleTime := 0
@@ -68,7 +68,7 @@ func day6a() {
 }
 
 func calculateDistance(time, length int) int {
-	wins := []int{}
+	var wins []int
 	for i := 0; i <= time; i++ {
 		remaining := time - i
 		distanceTraveled := i * remaining
